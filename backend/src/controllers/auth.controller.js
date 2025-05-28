@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import cloudinary from "cloudinary";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 
@@ -61,10 +62,108 @@ export const signup = async (req, res) => {
   }
 };
 
-export const login = (req, res) => {
-  res.send("login route");
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User does not exist",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+
+    generateToken(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
 
-export const logout = (req, res) => {
-  res.send("logout route");
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("jwt");
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+
+    const userId = req.user._id;
+
+    if (!avatar) {
+      return res.status(400).json({
+        success: false,
+        message: "Avatar is required",
+      });
+    }
+
+    const uploadResponse = await cloudinary.uploader.upload(avatar);
+    const updatedUser = await User.findOneAndUpdate(
+      userId,
+      {
+        avatar: uploadResponse.secure_url,
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    res.status(500).json({
+      sucess: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
