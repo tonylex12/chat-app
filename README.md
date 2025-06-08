@@ -84,7 +84,7 @@ The application will be available at `http://localhost:3000`
 
 ## Technologies Used
 
-- Frontend: React, Redux, Material-UI
+- Frontend: React, Zustand, TailwindCSS, DaisyUI
 - Backend: Node.js, Express.js
 - Database: MongoDB
 - Authentication: JWT
