@@ -21,12 +21,13 @@ The project is divided into two main parts:
 - Node.js (v14 or higher)
 - npm or yarn
 - MongoDB (for database)
+- Cloudinary (for image storage)
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone [git@github.com:tonylex12/chat-app.git]
 cd chat-app
 ```
 
@@ -47,7 +48,7 @@ npm install
 Create a `.env` file in the backend directory with the following variables:
 
 ```
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb://localhost:27017/chat-app
 JWT_SECRET=your-secret-key
 NODE_ENV=development
@@ -64,13 +65,15 @@ cd backend
 npm run dev
 ```
 
+The backend server will be available at `http://localhost:5001`
+
 2. In a new terminal, start the frontend:
 ```bash
 cd frontend
 npm start
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:5173`
 
 ## Available Scripts
 
