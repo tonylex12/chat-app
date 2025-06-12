@@ -27,7 +27,7 @@ The project is divided into two main parts:
 
 1. Clone the repository:
 ```bash
-git clone [git@github.com:tonylex12/chat-app.git]
+git clone git@github.com:tonylex12/chat-app.git
 cd chat-app
 ```
 
