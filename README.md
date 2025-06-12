@@ -38,7 +38,7 @@ npm install
 
 3. Install frontend dependencies:
 ```bash
-cd ../frontend
+cd frontend
 npm install
 ```
 
@@ -50,6 +50,10 @@ Create a `.env` file in the backend directory with the following variables:
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/chat-app
 JWT_SECRET=your-secret-key
+NODE_ENV=development
+CLOUDINARY_CLOUD_NAME=name
+CLOUDINARY_API_KEY=api_key
+CLOUDINARY_API_SECRET=api_secret
 ```
 
 ## Running the Application
@@ -73,14 +77,11 @@ The application will be available at `http://localhost:3000`
 ### Backend
 
 - `npm run dev`: Start the development server with hot-reload
-- `npm start`: Start the production server
-- `npm test`: Run tests
 
 ### Frontend
 
-- `npm start`: Start the development server
+- `npm run dev`: Start the development server
 - `npm run build`: Build the production version
-- `npm test`: Run frontend tests
 
 ## Technologies Used
 
@@ -88,7 +89,7 @@ The application will be available at `http://localhost:3000`
 - Backend: Node.js, Express.js
 - Database: MongoDB
 - Authentication: JWT
-- Real-time: Socket.io (if implemented)
+- Real-time: Socket.io
 
 ## Contributing
 
