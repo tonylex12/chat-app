@@ -38,10 +38,13 @@ export const getUnseenMessages = async (req, res) => {
         seen: false,
       });
       if (messages.length > 0) {
-        unseenMessages.push({
-          userId: user._id,
-          fullName: user.fullName,
-          count: messages.length,
+        messages.forEach((message) => {
+          unseenMessages.push({
+            userId: user._id,
+            fullName: user.fullName,
+            count: messages.length,
+            messageId: message._id,
+          });
         });
       }
     });
@@ -111,6 +114,30 @@ export const sendMessage = async (req, res) => {
     }
 
     res.status(201).json(newMessage);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const updateSeenStatus = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+
+    const message = await Message.findByIdAndUpdate(
+      messageId,
+      { seen: true },
+      { new: true }
+    );
+
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    res.status(200).json({ message: "Message seen", seen: true });
   } catch (error) {
     res.status(500).json({
       success: false,
