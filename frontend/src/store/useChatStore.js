@@ -6,9 +6,11 @@ import { useAuthStore } from "./useAuthStore.js";
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
+  unseenMessages: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isUnseenMessagesLoading: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -31,6 +33,18 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  getUnseenMessages: async () => {
+    set({ isUnseenMessagesLoading: true });
+    try {
+      const res = await axiosInstance.get("/messages/seen");
+      set({ unseenMessages: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      set({ isUnseenMessagesLoading: false });
     }
   },
 
@@ -68,5 +82,35 @@ export const useChatStore = create((set, get) => ({
     socket.off("newMessage");
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  updateMessageSeenStatus: async (messageId) => {
+    try {
+      await axiosInstance.put(`/messages/seen/${messageId}`);
+      set((state) => ({
+        messages: state.messages.map((message) =>
+          message._id === messageId ? { ...message, seen: true } : message
+        ),
+      }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  },
+
+  setSelectedUser: (selectedUser) => {
+    set({ selectedUser });
+    const { unseenMessages } = get();
+
+    const unseenMessagesForSelectedUser = unseenMessages.filter(
+      (message) => message.userId === selectedUser._id
+    );
+
+    unseenMessagesForSelectedUser.forEach((message) => {
+      get().updateMessageSeenStatus(message.messageId);
+    });
+
+    set((state) => ({
+      unseenMessages: state.unseenMessages.filter(
+        (message) => message.userId !== selectedUser._id
+      ),
+    }));
+  },
 }));

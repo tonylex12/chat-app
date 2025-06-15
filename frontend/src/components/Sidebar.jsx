@@ -5,22 +5,31 @@ import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
-    useChatStore();
+  const {
+    getUsers,
+    users,
+    selectedUser,
+    setSelectedUser,
+    isUsersLoading,
+    getUnseenMessages,
+    unseenMessages,
+    isUnseenMessagesLoading,
+  } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
+    getUnseenMessages();
     getUsers();
-  }, [getUsers]);
+  }, [getUsers, getUnseenMessages]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
-  if (isUsersLoading) return <SidebarSkeleton />;
+  if (isUsersLoading || isUnseenMessagesLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -78,7 +87,22 @@ const Sidebar = () => {
 
             {/* User info - only visible on larger screens */}
             <div className="hidden lg:block text-left min-w-0">
-              <div className="font-medium truncate">{user.fullName}</div>
+              <div className="font-medium truncate flex items-center gap-1">
+                {user.fullName}
+                {unseenMessages
+                  .filter((msg) => msg.userId === user._id)
+                  .map(
+                    (msg, index) =>
+                      msg.count > 0 && (
+                        <div
+                          key={index}
+                          className="badge badge-sm badge-primary"
+                        >
+                          {msg.count}
+                        </div>
+                      )
+                  )}
+              </div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
