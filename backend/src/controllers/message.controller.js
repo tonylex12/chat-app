@@ -42,7 +42,6 @@ export const getUnseenMessages = async (req, res) => {
           unseenMessages.push({
             userId: user._id,
             fullName: user.fullName,
-            count: messages.length,
             messageId: message._id,
           });
         });
