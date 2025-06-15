@@ -6,9 +6,11 @@ import { useAuthStore } from "./useAuthStore.js";
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
+  unseenMessages: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isUnseenMessagesLoading: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -31,6 +33,18 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  getUnseenMessages: async () => {
+    set({ isUnseenMessagesLoading: true });
+    try {
+      const res = await axiosInstance.get("/messages/seen");
+      set({ unseenMessages: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      set({ isUnseenMessagesLoading: false });
     }
   },
 

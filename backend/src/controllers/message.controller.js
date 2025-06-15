@@ -21,6 +21,45 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const getUnseenMessages = async (req, res) => {
+  try {
+    const loggedUserId = req.user._id;
+
+    const filteredUsers = await User.find({
+      _id: { $ne: loggedUserId },
+    }).select("-password");
+
+    const unseenMessages = [];
+
+    const promises = filteredUsers.map(async (user) => {
+      const messages = await Message.find({
+        senderId: user._id,
+        receiverId: loggedUserId,
+        seen: false,
+      });
+      if (messages.length > 0) {
+        unseenMessages.push({
+          userId: user._id,
+          fullName: user.fullName,
+          count: messages.length,
+        });
+      }
+    });
+
+    await Promise.all(promises);
+
+    console.log(unseenMessages);
+
+    res.status(200).json(unseenMessages);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
