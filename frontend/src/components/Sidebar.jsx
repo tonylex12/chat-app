@@ -31,6 +31,8 @@ const Sidebar = () => {
 
   if (isUsersLoading || isUnseenMessagesLoading) return <SidebarSkeleton />;
 
+  console.log(unseenMessages);
+
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
@@ -89,19 +91,18 @@ const Sidebar = () => {
             <div className="hidden lg:block text-left min-w-0">
               <div className="font-medium truncate flex items-center gap-1">
                 {user.fullName}
-                {unseenMessages
-                  .filter((msg) => msg.userId === user._id)
-                  .map(
-                    (msg, index) =>
-                      msg.count > 0 && (
-                        <div
-                          key={index}
-                          className="badge badge-sm badge-primary"
-                        >
-                          {msg.count}
-                        </div>
-                      )
-                  )}
+                {(() => {
+                  const unseen = unseenMessages.filter(
+                    (msg) => msg.userId === user._id
+                  );
+                  const unseenCount = unseen.length;
+
+                  return unseenCount > 0 ? (
+                    <div className="badge badge-sm badge-primary">
+                      {unseenCount}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
