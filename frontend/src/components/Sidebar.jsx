@@ -46,7 +46,7 @@ const Sidebar = () => {
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
-              className="checkbox checkbox-sm"
+              className="toggle toggle-primary toggle-md"
             />
             <span className="text-sm">Show online only</span>
           </label>
