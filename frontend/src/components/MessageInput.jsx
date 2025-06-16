@@ -92,42 +92,8 @@ const MessageInput = () => {
         </div>
       )}
 
-      {/* <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
-          <input
-            type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
-            placeholder="Type a message..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
-
-          <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Image size={20} />
-          </button>
-        </div>
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
-        >
-          <Send size={22} />
-        </button>
-      </form> */}
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2 relative">
+        <div className="flex-1 flex gap-2 relative items-center">
           <div className="absolute left-2 bottom-2 z-10" ref={emojiPickerRef}>
             <button
               type="button"
@@ -172,14 +138,14 @@ const MessageInput = () => {
           >
             <Image size={20} />
           </button>
+          <button
+            type="submit"
+            className="btn btn-sm btn-circle"
+            disabled={!text.trim() && !imagePreview}
+          >
+            <Send size={22} />
+          </button>
         </div>
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
-        >
-          <Send size={22} />
-        </button>
       </form>
     </div>
   );
