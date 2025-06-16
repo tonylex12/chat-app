@@ -1,11 +1,10 @@
 import { X } from "lucide-react";
+import { formatLastSeen } from "../lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
-
-const MessageInput = () => {
+const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
-
   return (
     <div className="p-2.5 border-b border-base-300">
       <div className="flex items-center justify-between">
@@ -24,7 +23,11 @@ const MessageInput = () => {
           <div>
             <h3 className="font-medium">{selectedUser.fullName}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+              {onlineUsers.includes(selectedUser._id)
+                ? "Online"
+                : selectedUser.lastSeen
+                  ? `Last seen: ${formatLastSeen(selectedUser.lastSeen)}`
+                  : "Offline"}
             </p>
           </div>
         </div>
@@ -37,4 +40,4 @@ const MessageInput = () => {
     </div>
   );
 };
-export default MessageInput;
+export default ChatHeader;
