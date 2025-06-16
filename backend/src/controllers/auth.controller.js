@@ -91,6 +91,10 @@ export const login = async (req, res) => {
       });
     }
 
+    // Update lastSeen timestamp
+    user.lastSeen = new Date();
+    await user.save();
+
     generateToken(user._id, res);
 
     res.status(200).json({
@@ -98,6 +102,7 @@ export const login = async (req, res) => {
       fullName: user.fullName,
       email: user.email,
       avatar: user.avatar,
+      lastSeen: user.lastSeen,
     });
   } catch (error) {
     res.status(500).json({
@@ -110,6 +115,22 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
+    // If req.user is available (e.g., if logout is a protected route)
+    // you can update lastSeen here.
+    if (req.user && req.user._id) {
+      const user = User.findByIdAndUpdate(req.user._id, {
+        lastSeen: new Date(),
+      });
+
+      await user.save();
+
+      console.log(`Updated lastSeen for user ${user._id} on logout`);
+    } else {
+      // If req.user is not available, lastSeen will be updated on socket disconnect.
+      console.log(
+        "Logout called without req.user, lastSeen will be updated on socket disconnect if applicable."
+      );
+    }
     res.cookie("jwt", "", {
       maxAge: 0,
     });
