@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
+import UnseenMessagesBadge from "./UnseenMessagesBadge";
 
 const Sidebar = () => {
   const {
@@ -89,18 +90,10 @@ const Sidebar = () => {
             <div className="hidden lg:block text-left min-w-0">
               <div className="font-medium truncate flex items-center gap-1">
                 {user.fullName}
-                {(() => {
-                  const unseen = unseenMessages.filter(
-                    (msg) => msg.userId === user._id
-                  );
-                  const unseenCount = unseen.length;
-
-                  return unseenCount > 0 ? (
-                    <div className="badge badge-sm badge-primary">
-                      {unseenCount}
-                    </div>
-                  ) : null;
-                })()}
+                <UnseenMessagesBadge
+                  userId={user._id}
+                  unseenMessages={unseenMessages}
+                />
               </div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
