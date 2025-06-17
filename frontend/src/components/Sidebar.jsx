@@ -3,34 +3,24 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import UnseenMessagesBadge from "./UnseenMessagesBadge";
 
 const Sidebar = () => {
-  const {
-    getUsers,
-    users,
-    selectedUser,
-    setSelectedUser,
-    isUsersLoading,
-    getUnseenMessages,
-    unseenMessages,
-    isUnseenMessagesLoading,
-  } = useChatStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
+    useChatStore();
 
   const { onlineUsers } = useAuthStore();
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
-    getUnseenMessages();
     getUsers();
-  }, [getUsers, getUnseenMessages]);
+  }, [getUsers]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
-  if (isUsersLoading || isUnseenMessagesLoading) return <SidebarSkeleton />;
+  if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -90,10 +80,6 @@ const Sidebar = () => {
             <div className="hidden lg:block text-left min-w-0">
               <div className="font-medium truncate flex items-center gap-1">
                 {user.fullName}
-                <UnseenMessagesBadge
-                  userId={user._id}
-                  unseenMessages={unseenMessages}
-                />
               </div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}

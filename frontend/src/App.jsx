@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
@@ -13,7 +12,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
 
   useEffect(() => {
