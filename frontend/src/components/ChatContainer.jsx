@@ -1,4 +1,3 @@
-import { Check, CheckCheck } from "lucide-react"; // Import icons
 import { useEffect, useRef } from "react";
 import { formatMessageTime } from "../lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
@@ -97,18 +96,6 @@ const ChatContainer = () => {
                 )}
                 {message.text && <p className="text-md">{message.text}</p>}
               </div>
-              {message.senderId === authUser._id && (
-                <div className="chat-footer opacity-50 mt-2">
-                  {message.seen ? "seen" : "unseen"}
-                  <div className="chat-footer opacity-80 flex items-center gap-1">
-                    {message.seen ? (
-                      <CheckCheck size={16} className="text-blue-500" />
-                    ) : (
-                      <Check size={16} className="text-gray-500" />
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           ))}
       </div>
