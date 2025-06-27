@@ -5,6 +5,7 @@ import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
+// import { Check, CheckCheck } from "lucide-react";
 
 const ChatContainer = () => {
   const {

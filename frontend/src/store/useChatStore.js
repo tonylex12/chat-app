@@ -6,6 +6,8 @@ import { useAuthStore } from "./useAuthStore.js";
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
+  unseenMessages: [],
+  isUnseenMessagesLoading: false,
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
@@ -14,7 +16,9 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/users");
-      set({ users: res.data });
+      console.log(res.data);
+      set({ users: res.data.users });
+      set({ unseenMessages: res.data.unseenMessages });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
@@ -34,18 +38,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getUnseenMessages: async () => {
-    set({ isUnseenMessagesLoading: true });
-    try {
-      const res = await axiosInstance.get("/messages/seen");
-      set({ unseenMessages: res.data });
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-    } finally {
-      set({ isUnseenMessagesLoading: false });
-    }
-  },
-
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
@@ -54,6 +46,14 @@ export const useChatStore = create((set, get) => ({
         messageData
       );
       set({ messages: [...messages, res.data] });
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  },
+
+  markMessagesAsSeen: async (userId) => {
+    try {
+      await axiosInstance.put(`/messages/mark/${userId}`);
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -69,9 +69,32 @@ export const useChatStore = create((set, get) => ({
       const isMessageSentFromSelectedUser =
         newMessage.senderId === selectedUser._id;
 
-      if (!isMessageSentFromSelectedUser) return;
+      if (!isMessageSentFromSelectedUser) {
+        const { unseenMessages } = get();
+        const updatedUnseenMessages = unseenMessages.map((msg) => {
+          if (msg.userId === newMessage.senderId) {
+            return { ...msg, count: msg.count + 1 };
+          }
+          return msg;
+        });
+
+        const senderExists = updatedUnseenMessages.some(
+          (msg) => msg.userId === newMessage.senderId
+        );
+
+        if (!senderExists) {
+          updatedUnseenMessages.push({
+            userId: newMessage.senderId,
+            count: 1,
+          });
+        }
+
+        set({ unseenMessages: updatedUnseenMessages });
+        return;
+      }
 
       set({ messages: [...get().messages, newMessage] });
+      get().markMessagesAsSeen(newMessage._id);
     });
   },
 
@@ -80,7 +103,21 @@ export const useChatStore = create((set, get) => ({
     socket.off("newMessage");
   },
 
+  updateUserLastSeen: (onlineUserIds) => {
+    set((state) => ({
+      users: state.users.map((user) => ({
+        ...user,
+        lastSeen: onlineUserIds.includes(user._id) ? null : new Date(),
+      })),
+    }));
+  },
+
   setSelectedUser: (selectedUser) => {
     set({ selectedUser });
+    set({
+      unseenMessages: get().unseenMessages.filter(
+        (msg) => msg.userId !== selectedUser._id
+      ),
+    });
   },
 }));
