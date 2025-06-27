@@ -11,54 +11,30 @@ export const getUsers = async (req, res) => {
       _id: { $ne: loggedUserId },
     }).select("-password");
 
-    res.status(200).json(filteredUsers);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
-
-export const getUnseenMessages = async (req, res) => {
-  try {
-    const loggedUserId = req.user._id;
-
-    const filteredUsers = await User.find({
-      _id: { $ne: loggedUserId },
-    }).select("-password");
-
     const unseenMessages = [];
-
     const promises = filteredUsers.map(async (user) => {
       const messages = await Message.find({
         senderId: user._id,
         receiverId: loggedUserId,
         seen: false,
       });
+
       if (messages.length > 0) {
-        messages.forEach((message) => {
-          unseenMessages.push({
-            userId: user._id,
-            fullName: user.fullName,
-            messageId: message._id,
-          });
-        });
+        unseenMessages.push({ userId: user._id, count: messages.length });
       }
     });
 
     await Promise.all(promises);
 
-    console.log(unseenMessages);
-
-    res.status(200).json(unseenMessages);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
+    res.status(200).json({
+      success: true,
+      users: filteredUsers,
+      unseenMessages,
+      message: "Users fetched successfully",
     });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -74,6 +50,11 @@ export const getMessages = async (req, res) => {
       ],
     });
 
+    await Message.updateMany(
+      { senderId: userToChatId, receiverId: myId },
+      { seen: true }
+    );
+
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({
@@ -81,6 +62,21 @@ export const getMessages = async (req, res) => {
       message: "Internal server error",
       error: error.message,
     });
+  }
+};
+
+export const markMessageAsSeen = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    await Message.findByIdAndUpdate(messageId, { seen: true });
+
+    res.status(200).json({
+      success: true,
+      message: "Message marked as seen",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -113,30 +109,6 @@ export const sendMessage = async (req, res) => {
     }
 
     res.status(201).json(newMessage);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
-
-export const updateSeenStatus = async (req, res) => {
-  try {
-    const { messageId } = req.params;
-
-    const message = await Message.findByIdAndUpdate(
-      messageId,
-      { seen: true },
-      { new: true }
-    );
-
-    if (!message) {
-      return res.status(404).json({ message: "Message not found" });
-    }
-
-    res.status(200).json({ message: "Message seen", seen: true });
   } catch (error) {
     res.status(500).json({
       success: false,

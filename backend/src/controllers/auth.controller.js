@@ -118,18 +118,9 @@ export const logout = async (req, res) => {
     // If req.user is available (e.g., if logout is a protected route)
     // you can update lastSeen here.
     if (req.user && req.user._id) {
-      const user = User.findByIdAndUpdate(req.user._id, {
+      await User.findByIdAndUpdate(req.user._id, {
         lastSeen: new Date(),
       });
-
-      await user.save();
-
-      console.log(`Updated lastSeen for user ${user._id} on logout`);
-    } else {
-      // If req.user is not available, lastSeen will be updated on socket disconnect.
-      console.log(
-        "Logout called without req.user, lastSeen will be updated on socket disconnect if applicable."
-      );
     }
     res.cookie("jwt", "", {
       maxAge: 0,

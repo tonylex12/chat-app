@@ -1,5 +1,6 @@
 import { Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { formatMessageTime } from "../lib/utils";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
@@ -12,7 +13,6 @@ const Sidebar = () => {
     selectedUser,
     setSelectedUser,
     isUsersLoading,
-    getUnseenMessages,
     unseenMessages,
     isUnseenMessagesLoading,
   } = useChatStore();
@@ -22,9 +22,8 @@ const Sidebar = () => {
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
-    getUnseenMessages();
     getUsers();
-  }, [getUsers, getUnseenMessages]);
+  }, [getUsers]);
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
@@ -96,7 +95,11 @@ const Sidebar = () => {
                 />
               </div>
               <div className="text-sm text-zinc-400">
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                {onlineUsers.includes(user._id)
+                  ? "Online"
+                  : user.lastSeen
+                    ? `Last seen ${formatMessageTime(user.lastSeen)}`
+                    : "Offline"}
               </div>
             </div>
           </button>

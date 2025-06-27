@@ -18,17 +18,25 @@ export function getReceiverSocketId(userId) {
 // used to store online users
 const userSocketMap = {};
 
-io.on("connection", (socket) => {
+import User from "../models/user.model.js";
+
+io.on("connection", async (socket) => {
   console.log("A user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
-  if (userId) userSocketMap[userId] = socket.id;
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+    // Update lastSeen to null when user connects
+    await User.findByIdAndUpdate(userId, { lastSeen: null });
+  }
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     console.log("User disconnected", socket.id);
     delete userSocketMap[userId];
+    // Update lastSeen to current time when user disconnects
+    await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
